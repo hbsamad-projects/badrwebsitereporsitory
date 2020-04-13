@@ -53,7 +53,7 @@ export default class QualificationsList extends Component {
 
   getPDF(id){
     axios.post('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id)
-      .then(() => axios.get('http://backend-eveci.herokuapp.com/qualifications/pdf/'+id, { responseType: 'blob' }))
+      .then(() => axios.get('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id, { responseType: 'blob' }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
 
