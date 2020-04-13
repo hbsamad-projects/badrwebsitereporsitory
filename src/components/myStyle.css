@@ -1,0 +1,73 @@
+* {
+  font-family: "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+h3{
+  position: relative;
+  margin: 50px auto;
+  font-size: 2em;
+  text-align:center;
+  max-width: 900px;
+
+}
+
+h3:before {
+  content: "";
+  display: block;
+  width: 100px;
+  height: 2px;
+  position: absolute;
+  background: #37B9C3;
+  left: 0;
+  top: 50%;
+}
+
+h3:after {
+  content: "";
+  display: block;
+  width: 100px;
+  height: 2px;
+  position: absolute;
+  background: #37B9C3;
+  right: 0;
+  top: 50%;
+
+}
+
+
+.primary-color-engie {
+  color: #00AAFF;
+}
+
+h4 {
+  border-bottom: 3px solid rgba(230, 45, 135, .5);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.secondary-color-engie {
+  color: #005FAA;
+}
+
+.third-color-engie {
+  color: #37B9C3;
+}
+
+.sucess-color-engie {
+  color: #91C896;
+}
+
+.error-color-engie {
+  color: #AA2D19;
+}
+
+.background-color-engie {
+  color: #343434;
+}
+
+.error-message {
+  color: #AA2D19;
+  font-weight: bold;
+  font-size: 14px;
+  vertical-align:middle;
+}
