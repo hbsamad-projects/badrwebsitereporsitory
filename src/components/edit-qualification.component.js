@@ -90,7 +90,7 @@ export default class EditQualification extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:5000/qualifications/'+this.props.match.params.id)
+    axios.get('http://backend-eveci.herokuapp.com/qualifications/'+this.props.match.params.id)
       .then(response => {
 
         console.log(response.data.works_conditions.technical_visite_date);
@@ -257,7 +257,7 @@ export default class EditQualification extends Component {
 
     console.log(qualification);
 
-    axios.post('http://localhost:5000/qualifications/update/' + this.props.match.params.id, qualification)
+    axios.post('http://backend-eveci.herokuapp.com/qualifications/update/' + this.props.match.params.id, qualification)
       .then(res => {
         console.log(res.data);
         window.location = '/';

@@ -32,7 +32,7 @@ export default class QualificationsList extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:5000/qualifications/')
+    axios.get('http://backend-eveci.herokuapp.com/qualifications/')
       .then(response => {
         this.setState({ qualifications: response.data })
         console.log(response.data);
@@ -43,7 +43,7 @@ export default class QualificationsList extends Component {
   }
 
   deleteQualification(id) {
-    axios.delete('http://localhost:5000/qualifications/'+id)
+    axios.delete('http://backend-eveci.herokuapp.com/qualifications/'+id)
       .then(response => { console.log(response.data)});
 
     this.setState({
@@ -52,8 +52,8 @@ export default class QualificationsList extends Component {
   }
 
   getPDF(id){
-    axios.post('http://localhost:5000/qualifications/pdf/'+id)
-      .then(() => axios.get('http://localhost:5000/qualifications/pdf/'+id, { responseType: 'blob' }))
+    axios.post('http://backend-eveci.herokuapp.com/qualifications/pdf/'+id)
+      .then(() => axios.get('http://backend-eveci.herokuapp.com/qualifications/pdf/'+id, { responseType: 'blob' }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
 
