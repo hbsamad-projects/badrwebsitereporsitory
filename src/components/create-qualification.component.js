@@ -408,7 +408,7 @@ export default class CreateQualification extends Component {
 
     console.log(qualification);
 
-    axios.post('http://backend-eveci.herokuapp.com/qualifications/add', qualification)
+    axios.post('https://backend-eveci.herokuapp.com/qualifications/add', qualification)
       .then(res => {
         console.log(res.data);
         window.location = '/';
