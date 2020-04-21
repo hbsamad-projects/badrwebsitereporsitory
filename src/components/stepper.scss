@@ -1,0 +1,161 @@
+.stepper-wrapper-horizontal{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+
+  .step-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content:flex-start;
+    width: 20%;
+    position: relative;
+
+  }
+  .step-name{
+    margin-right:1.2rem;
+  }
+  .step-name-active{
+    font-weight: bold;
+    margin-right:1.2rem;
+  }
+  .step-number{
+    font-size: 14px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+  .step-number-active{
+    background: #37B9C3;
+    color: #fff;
+
+  }
+  .step-number-disabled {
+    border: 1px solid #838383;
+  }
+
+  .divider-line{
+    height: 1px;
+    background-color: #bdbdbd;
+    position: absolute;
+
+  }
+
+  .divider-line-2{
+    width: 360%;
+    left: 70%;
+    top: 9%;
+  }
+  .divider-line-3{
+    width: 160%;
+    left: 70%;
+    top: 9%;
+  }
+  .divider-line-4{
+    width: 90%;
+    left: 70%;
+    top: 9%;
+  }
+  .divider-line-5{
+    width: 58%;
+    left: 70%;
+    top: 9%;
+  }
+  .divider-line-6{
+    width: 45%;
+    left: 80%;
+    top: 6%;
+  }
+  .divider-line-7{
+    width: 50%;
+    left: 75%;
+    top: 6%;
+  }
+  .divider-line-8{
+    width: 50%;
+    left: 70%;
+    top: 6%;
+  }
+
+}
+
+.stepper-wrapper-vertical{
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  .step-wrapper{
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 1.2rem;
+    height: 50px;
+  }
+
+  .step-number{
+    font-size: 14px;
+    border-radius: 80%;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    padding: 4px;
+    text-align: center;
+    margin-right: 1.2rem;
+  }
+
+  .step-number-active{
+    background: #37B9C3;
+    color: #fff;
+
+  }
+  .step-number-disabled {
+    border: 1px solid #838383;
+  }
+
+  .step-name{
+    margin-right:1.2rem;
+  }
+  .step-name-active{
+    font-weight: bold;
+    margin-right:1.2rem;
+  }
+
+  .divider-line{
+    width: 1px;
+    background-color: #bdbdbd;
+    position: absolute;
+    left: 14px;
+  }
+
+  .divider-line-2{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-3{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-4{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-5{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-6{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-7{
+    height: 36%;
+    top: 100%;
+  }
+  .divider-line-8{
+    height: 36%;
+    top: 100%;
+  }
+
+}

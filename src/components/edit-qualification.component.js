@@ -274,8 +274,8 @@ export default class EditQualification extends Component {
     return (
       <div className="container">
         <div className="card"><div className="card-body">
-            <h3 className="third-color-engie"><span>Qualification d'infrastructure de recharge</span></h3>
-            <h4 className="primary-color-engie"><span>1. Identification du projet</span></h4>
+            <h3 className="third-color-engie">Qualification d'infrastructure de recharge</h3>
+            <h4 className="primary-color-engie">1. Identification du projet</h4>
             <AddressItem label="SIRET" id="siret" value={this.state.siret} errorMessage={this.state.formErrors.siret} placeholder="" readonly="true" onChange={this.onChange}/>
             <AddressItem label="Entreprise" id="corporatename" value={this.state.corporatename} errorMessage="" placeholder="" readonly="true" onChange={this.onChange}/>
             <AddressItem label="Site" id="sitename" value={this.state.sitename} errorMessage="" placeholder="" readonly="true" onChange={this.onChange}/>
