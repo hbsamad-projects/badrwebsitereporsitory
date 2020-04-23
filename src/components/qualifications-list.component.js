@@ -7,6 +7,7 @@ import {getReport} from '../tools/dataLoading';
 
 
 const Qualification = props => (
+
   <tr>
     <td>{props.qualification.uniqid}</td>
     <td>{props.qualification.stage}</td>
@@ -14,9 +15,16 @@ const Qualification = props => (
     <td>{props.qualification.corporatename}</td>
     <td>{props.qualification.pdl}</td>
     <td>
+      {props.qualification.stage === 'Qualification validée' &&
+        <a href="#">devis | </a>
+      }
       <Link to={"/edit/"+props.qualification._id}>modifier</Link> | <a href="#" onClick={() => { props.deleteQualification(props.qualification._id) }}>supprimer</a>
     </td>
-    <td><img width="50px" src={logo} onClick={() => { props.getPDF(props.qualification._id) }}/></td>
+    <td>
+      {props.qualification.stage === 'Qualification validée' &&
+        <img width='50px' src={logo} onClick={() => { props.getPDF(props.qualification._id) }}/>
+      }
+    </td>
     <td></td>
   </tr>
 )
@@ -54,21 +62,13 @@ export default class QualificationsList extends Component {
   }
 
   getPDF(id){
-    axios.post('http://localhost:5000/qualifications/pdf/'+id)
-      .then(() => axios.get('http://localhost:5000/qualifications/pdf/'+id, { responseType: 'blob' }))
+    axios.post('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id)
+      .then(() => axios.get('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id, { responseType: 'blob' }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
 
         saveAs(pdfBlob, 'newPdf.pdf');
-      })
-
-      /*axios.post('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id)
-        .then(() => axios.get('https://backend-eveci.herokuapp.com/qualifications/pdf/'+id, { responseType: 'blob' }))
-        .then((res) => {
-          const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-
-          saveAs(pdfBlob, 'newPdf.pdf');
-        })*/
+      });
   }
 
   qualificationList() {

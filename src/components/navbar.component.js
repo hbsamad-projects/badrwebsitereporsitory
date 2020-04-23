@@ -13,10 +13,7 @@ export default class Navbar extends Component {
           <Link to="/turpe" className="nav-link">Optimisation</Link>
           </li>
           <li className="navbar-item">
-          <Link to="/" className="nav-link">Qualification</Link>
-          </li>
-          <li className="navbar-item">
-          <Link to="/" className="nav-link">Cotation</Link>
+          <Link to="/" className="nav-link">Qualification et cotation</Link>
           </li>
         </ul>
         </div>

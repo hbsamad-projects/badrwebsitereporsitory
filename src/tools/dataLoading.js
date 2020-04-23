@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const usage = {
   "1":"Bornes pour flotte d'entreprise sur parking privé",
   "2":"Partagé en résidentiel collectif",
@@ -92,8 +94,8 @@ export const getReport = function(jsonData){
     other_information_signalling: signalling[row.other_information.signalling],
     other_information_station_type: station_type[row.other_information.station_type],
     other_information_billing_conditions: billing_conditions[row.other_information.billing_conditions],
-    works_conditions_technical_visite_date: row.works_conditions.technical_visite_date,
-    works_conditions_installation_date: row.works_conditions.installation_date,
+    works_conditions_technical_visite_date: moment(row.works_conditions.technical_visite_date).format("DD/MM/YYYY"),
+    works_conditions_installation_date: moment(row.works_conditions.installation_date).format("DD/MM/YYYY"),
     works_conditions_access_restrictions: row.works_conditions.access_restrictions,
     works_conditions_prevention_plan: row.works_conditions.prevention_plan
 

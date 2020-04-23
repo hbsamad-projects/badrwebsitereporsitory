@@ -6,6 +6,7 @@ import './myStyle.css';
 import {estSiretValide, formValid, isValidDate} from '../tools/validation';
 import moment from "moment";
 import uniqid from '../tools/uniqid';
+import QualValidationMod from './modals/qualvalidationmod.component';
 
 import cdcenoapf from "../advenir/CAHIER-DES-CHARGES-ENTREPRISES-NON-OUVERT-AU-PUBLIC-FLOTTE.PDF";
 import cdcperc from "../advenir/CAHIER-DES-CHARGES-PARTAGE-EN-RESIDENTIEL-COLLECTIF.PDF";
@@ -92,9 +93,9 @@ export class AddressInput extends Component {
 export class DocumentInput extends Component {
   render() {
     return (
-      <div class="custom-control custom-switch">
-        <input type="checkbox" checked={this.props.value} class="custom-control-input" id={this.props.inputid} onChange={this.props.onChange} />
-        <label class="custom-control-label" for={this.props.inputid}>{this.props.label}</label>
+      <div className="custom-control custom-switch">
+        <input type="checkbox" checked={this.props.value} className="custom-control-input" id={this.props.inputid} onChange={this.props.onChange} />
+        <label className="custom-control-label" htmlFor={this.props.inputid}>{this.props.label}</label>
       </div>
     );
   }
@@ -172,7 +173,7 @@ export class NeedsToBeDefined extends Component {
       <div className="row form-group justify-content-start">
         <label className="col-xl-4 col-form-label">Temps de charge acceptable pour 100km</label>
         <div className="col-xl-4">
-          <select class="form-control" value={this.props.charging_time} id = "other_needs_charging_time" onChange={this.props.onChange}>
+          <select className="form-control" value={this.props.charging_time} id = "other_needs_charging_time" onChange={this.props.onChange}>
             <option value="1">Moins d'une heure</option>
             <option value="2">Moins de trois heures</option>
             <option value="3">Moins de cinq heures</option>
@@ -205,7 +206,7 @@ export class OtherInformation extends Component {
       <div className="row form-group justify-content-start">
       <label className="col-xl-4 col-form-label">Type de pose</label>
       <div className="col-xl-4">
-        <select class="form-control" value={this.props.installation_type} id = "other_information_installation_type" onChange={this.props.onChange}>
+        <select className="form-control" value={this.props.installation_type} id = "other_information_installation_type" onChange={this.props.onChange}>
         <option value="1">A définir</option>
         <option value="2">Simple</option>
         <option value="3">Complexe</option>
@@ -215,7 +216,7 @@ export class OtherInformation extends Component {
       <div className="row form-group justify-content-start">
       <label className="col-xl-4 col-form-label">Signalisation</label>
       <div className="col-xl-4">
-        <select class="form-control" value={this.props.signalling} id = "other_information_signalling" onChange={this.props.onChange}>
+        <select className="form-control" value={this.props.signalling} id = "other_information_signalling" onChange={this.props.onChange}>
         <option value="1">A définir</option>
         <option value="2">Oui</option>
         <option value="3">Non</option>
@@ -225,7 +226,7 @@ export class OtherInformation extends Component {
       <div className="row form-group justify-content-start">
       <label className="col-xl-4 col-form-label">Type de borne</label>
       <div className="col-xl-4">
-        <select class="form-control" value={this.props.station_type} id = "other_information_station_type" onChange={this.props.onChange}>
+        <select className="form-control" value={this.props.station_type} id = "other_information_station_type" onChange={this.props.onChange}>
         <option value="1">A définir</option>
         <option value="2">Autostart</option>
         <option value="3">Contrôle d'accès</option>
@@ -235,7 +236,7 @@ export class OtherInformation extends Component {
       <div className="row form-group justify-content-start">
       <label className="col-xl-4 col-form-label">Condition de facturation à la recharge</label>
       <div className="col-xl-4">
-        <select class="form-control" value={this.props.billing_conditions} id = "other_information_billing_conditions" onChange={this.props.onChange}>
+        <select className="form-control" value={this.props.billing_conditions} id = "other_information_billing_conditions" onChange={this.props.onChange}>
         <option value="1">A définir</option>
         <option value="2">Flotte d'entreprise</option>
         <option value="3">Public</option>
@@ -254,10 +255,14 @@ export default class CreateQualification extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+    this.onChangeCheck = this.onChangeCheck.bind(this);
     this.onChangeTVDate = this.onChangeTVDate.bind(this);
     this.onChangeInstDate = this.onChangeInstDate.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.onClear = this.onClear.bind(this);
+    this.onValidate = this.onValidate.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+    this.showModal = this.showModal.bind(this);
+    this.onValidateModal = this.onValidateModal.bind(this);
 
     this.state = {
 
@@ -317,6 +322,12 @@ export default class CreateQualification extends Component {
         works_conditions_technical_visite_date:'Date non valide',
         works_conditions_installation_date:'Date non valide'
 
+      },
+
+      validationmodal:{
+        show : false,
+        documents: false,
+        sendemail: false
       }
     }
   }
@@ -345,6 +356,16 @@ export default class CreateQualification extends Component {
       [e.target.id]: (e.target.checked)?1:0
     });
   }
+
+  onChangeCheck = input => e => {
+
+    this.setState({
+      validationmodal:{
+        ...this.state.validationmodal,
+        [input]: e.target.checked
+      }
+    });
+  };
 
   onChangeTVDate(date) {
     let formErrors =  this.state.formErrors;
@@ -430,22 +451,139 @@ export default class CreateQualification extends Component {
 
     console.log(qualification);
 
+    var id = "";
+
     axios.post('https://backend-eveci.herokuapp.com/qualifications/add', qualification)
       .then(res => {
         console.log(res.data);
         window.location = '/';
       });
 
-  }
+    }
 
-  onClear(e) {
+  onValidate(e){
     e.preventDefault();
 
+    if(! formValid(this.state.formErrors)){
+      console.error("Invalid form");
+      return;
+    }
+    this.showModal();
+  }
+
+  onValidateModal(e){
+
+    e.preventDefault();
+
+    if(!formValid(this.state.formErrors) || this.state.validationmodal.documents === false){
+      console.error("Invalid form");
+      return;
+    }
+
+    const qualification = {
+      uniqid: this.state.uniqid,
+      stage: 'Qualification validée',
+
+      siret: this.state.siret,
+      corporatename: this.state.corporatename,
+      sitename: this.state.sitename,
+      street: this.state.street,
+      city: this.state.city,
+      code: this.state.code,
+      country: this.state.country,
+
+      usage: this.state.usage,
+      pdl: this.state.pdl,
+      s_enedis: this.state.s_enedis,
+      project_ad_inf: this.state.project_ad_inf,
+
+      contact_lastname: this.state.contact_lastname,
+      contact_firstname: this.state.contact_firstname,
+      contact_phone: this.state.contact_phone,
+      contact_email: this.state.contact_email,
+
+      documents_elec_bill: this.state.documents_elec_bill,
+      documents_rib: this.state.documents_rib,
+      documents_authorization: this.state.documents_authorization,
+      documents_works_plan: this.state.documents_works_plan,
+
+      charger_needs_nb_s_7kw_c: this.state.charger_needs_nb_s_7kw_c,
+      charger_needs_nb_d_7kw_c: this.state.charger_needs_nb_d_7kw_c,
+      charger_needs_nb_s_22kw_c: this.state.charger_needs_nb_s_22kw_c,
+      charger_needs_nb_d_22kw_c: this.state.charger_needs_nb_d_22kw_c,
+      charger_needs_nb_sh_7kw_c: this.state.charger_needs_nb_sh_7kw_c,
+      charger_needs_other_data: this.state.charger_needs_other_data,
+
+      other_needs_charging_time: this.state.other_needs_charging_time,
+      other_needs_nb_vehicules: this.state.other_needs_nb_vehicules,
+      other_needs_nb_charges: this.state.other_needs_nb_charges,
+      other_needs_allowed_access_days: this.state.other_needs_allowed_access_days,
+
+      other_information_installation_type: this.state.other_information_installation_type,
+      other_information_signalling: this.state.other_information_signalling,
+      other_information_station_type: this.state.other_information_station_type,
+      other_information_billing_conditions: this.state.other_information_billing_conditions,
+
+      comments: this.state.comments,
+
+      works_conditions_technical_visite_date: this.state.works_conditions_technical_visite_date,
+      works_conditions_installation_date: this.state.works_conditions_installation_date,
+      works_conditions_access_restrictions: this.state.works_conditions_access_restrictions,
+      works_conditions_prevention_plan: this.state.works_conditions_prevention_plan
+    }
+
+    console.log(qualification);
+
+    var id = "";
+
+    axios.post('https://backend-eveci.herokuapp.com/qualifications/add', qualification)
+      .then(res => {
+        console.log(res.data.id);
+        id = res.data.id;
+      })
+      .then(() =>{
+        if(this.state.validationmodal.sendemail){
+          axios.get('https://backend-eveci.herokuapp.com/qualifications/email/'+id)
+          .then(() => {
+            this.showModal();
+            window.location = '/';
+          });
+        }else{
+          console.log('No email sent');
+          this.showModal();
+          window.location = '/';
+        }
+
+      });
+
+  }
+
+  onCancel(e) {
+    e.preventDefault();
+    window.location = '/';
+  }
+
+  showModal(){
+    this.setState({
+      validationmodal:{
+        show : !this.state.validationmodal.show,
+        documents: this.state.validationmodal.documents,
+        sendemail: this.state.validationmodal.sendemail
+      }
+    });
   }
 
   render() {
     return (
       <div className="container">
+        <QualValidationMod
+        onShowHide = {this.showModal}
+        showProp = {this.state.validationmodal.show}
+        documents = {this.state.validationmodal.documents}
+        sendemail = {this.state.validationmodal.sendemail}
+        onChange = {this.onChangeCheck}
+        onValidate = {this.onValidateModal}
+         />
         <div className="card"><div className="card-body">
             <h3 className="third-color-engie">Qualification d'infrastructure de recharge</h3>
             <div className="row form-group justify-content-start">
@@ -470,7 +608,7 @@ export default class CreateQualification extends Component {
             <div className="row form-group justify-content-start">
               <label className="col-xl-4 col-form-label">Usage</label>
               <div className="col-xl-4">
-                <select class="form-control" id='usage' value={this.state.usage} onChange={this.onChange}>
+                <select className="form-control" id='usage' value={this.state.usage} onChange={this.onChange}>
                   <option value="1">Bornes pour flotte d'entreprise sur parking privé</option>
                   <option value="2">Partagé en résidentiel collectif</option>
                   <option value="3">Individuel en résidentiel collectif</option>
@@ -489,7 +627,7 @@ export default class CreateQualification extends Component {
             <div className="row form-group justify-content-start">
               <label className="col-xl-4 col-form-label">Segment ENEDIS</label>
               <div className="col-xl-4">
-                <select class="form-control" id="s_enedis" value={this.state.s_enedis} onChange={this.onChange}>
+                <select className="form-control" id="s_enedis" value={this.state.s_enedis} onChange={this.onChange}>
                   <option value="1">C1</option>
                   <option value="2">C2</option>
                   <option value="3">C3</option>
@@ -568,9 +706,10 @@ export default class CreateQualification extends Component {
               iderrorMessage = {this.state.formErrors.works_conditions_installation_date}
               />
             <br/>
-            <div class="btn-group float-right form-group">
-              <button type="submit" onClick={this.onSubmit} className="btn btn-primary">Valider la qualification</button>
-              <button type="reset" className="btn btn-outline-secondary">Recommencer</button>
+            <div className="btn-group float-right form-group">
+              <button type="submit" onClick={this.onValidate} className="btn btn-primary">Valider la qualification</button>
+              <button type="reset"  onClick={this.onSubmit} className="btn btn-outline-secondary">Enregistrer</button>
+              <button type="reset" onClick={this.onCancel} className="btn btn-outline-secondary">Annuler</button>
             </div>
           </div></div>
           <br/>

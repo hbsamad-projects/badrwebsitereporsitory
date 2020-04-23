@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import './myStyle.css';
 import {estSiretValide, formValid, isValidDate} from '../tools/validation';
 import moment from "moment";
+import QualValidationMod from './modals/qualvalidationmod.component';
 import {AddressItem,
         PickItem,
         AddressInput,
@@ -25,10 +26,14 @@ export default class EditQualification extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+    this.onChangeCheck = this.onChangeCheck.bind(this);
     this.onChangeTVDate = this.onChangeTVDate.bind(this);
     this.onChangeInstDate = this.onChangeInstDate.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.onClear = this.onClear.bind(this);
+    this.onValidate = this.onValidate.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+    this.showModal = this.showModal.bind(this);
+    this.onValidateModal = this.onValidateModal.bind(this);
 
     this.state = {
 
@@ -88,6 +93,12 @@ export default class EditQualification extends Component {
         works_conditions_technical_visite_date:'',
         works_conditions_installation_date:''
 
+      },
+
+      validationmodal:{
+        show : false,
+        documents: false,
+        sendemail: false
       }
     }
   }
@@ -95,8 +106,6 @@ export default class EditQualification extends Component {
   componentDidMount() {
     axios.get('https://backend-eveci.herokuapp.com/qualifications/'+this.props.match.params.id)
       .then(response => {
-
-        console.log(response.data.works_conditions.technical_visite_date);
 
         this.setState({
 
@@ -171,16 +180,28 @@ export default class EditQualification extends Component {
 
     this.setState({
       formErrors,
-      [e.target.id]: e.target.value
+      [e.target.id]: e.target.value,
+      stage: 'Qualification en cours'
     });
   }
 
   onChangeCheckbox(e) {
 
     this.setState({
-      [e.target.id]: (e.target.checked)?1:0
+      [e.target.id]: (e.target.checked)?1:0,
+      stage: 'Qualification en cours'
     });
   }
+
+  onChangeCheck = input => e => {
+
+    this.setState({
+      validationmodal:{
+        ...this.state.validationmodal,
+        [input]: e.target.checked
+      }
+    });
+  };
 
   onChangeTVDate(date) {
     let formErrors =  this.state.formErrors;
@@ -189,7 +210,8 @@ export default class EditQualification extends Component {
 
     this.setState({
       formErrors,
-      works_conditions_technical_visite_date: date
+      works_conditions_technical_visite_date: date,
+      stage: 'Qualification en cours'
     });
   }
 
@@ -200,7 +222,8 @@ export default class EditQualification extends Component {
 
     this.setState({
       formErrors,
-      works_conditions_installation_date: date
+      works_conditions_installation_date: date,
+      stage: 'Qualification en cours'
     });
   }
 
@@ -274,14 +297,129 @@ export default class EditQualification extends Component {
 
   }
 
-  onClear(e) {
+  onValidate(e){
     e.preventDefault();
 
+    if(this.state.stage === 'Qualification validée'){
+      this.sendValidatedData();
+      return;
+    }
+
+    if(! formValid(this.state.formErrors)){
+      console.error("Invalid form");
+      return;
+    }
+    this.showModal();
+  }
+
+  onValidateModal(e){
+
+    e.preventDefault();
+
+    console.log(this.state.validationmodal.documents);
+
+    if(!formValid(this.state.formErrors) || this.state.validationmodal.documents === false){
+      console.error("Invalid form");
+      return;
+    }
+
+    this.sendValidatedData();
+
+  }
+
+  sendValidatedData(){
+    const qualification = {
+      uniqid: this.state.uniqid,
+      stage: 'Qualification validée',
+
+      siret: this.state.siret,
+      corporatename: this.state.corporatename,
+      sitename: this.state.sitename,
+      street: this.state.street,
+      city: this.state.city,
+      code: this.state.code,
+      country: this.state.country,
+
+      usage: this.state.usage,
+      pdl: this.state.pdl,
+      s_enedis: this.state.s_enedis,
+      project_ad_inf: this.state.project_ad_inf,
+
+      contact_lastname: this.state.contact_lastname,
+      contact_firstname: this.state.contact_firstname,
+      contact_phone: this.state.contact_phone,
+      contact_email: this.state.contact_email,
+
+      documents_elec_bill: this.state.documents_elec_bill,
+      documents_rib: this.state.documents_rib,
+      documents_authorization: this.state.documents_authorization,
+      documents_works_plan: this.state.documents_works_plan,
+
+      charger_needs_nb_s_7kw_c: this.state.charger_needs_nb_s_7kw_c,
+      charger_needs_nb_d_7kw_c: this.state.charger_needs_nb_d_7kw_c,
+      charger_needs_nb_s_22kw_c: this.state.charger_needs_nb_s_22kw_c,
+      charger_needs_nb_d_22kw_c: this.state.charger_needs_nb_d_22kw_c,
+      charger_needs_nb_sh_7kw_c: this.state.charger_needs_nb_sh_7kw_c,
+      charger_needs_other_data: this.state.charger_needs_other_data,
+
+      other_needs_charging_time: this.state.other_needs_charging_time,
+      other_needs_nb_vehicules: this.state.other_needs_nb_vehicules,
+      other_needs_nb_charges: this.state.other_needs_nb_charges,
+      other_needs_allowed_access_days: this.state.other_needs_allowed_access_days,
+
+      other_information_installation_type: this.state.other_information_installation_type,
+      other_information_signalling: this.state.other_information_signalling,
+      other_information_station_type: this.state.other_information_station_type,
+      other_information_billing_conditions: this.state.other_information_billing_conditions,
+
+      comments: this.state.comments,
+
+      works_conditions_technical_visite_date: this.state.works_conditions_technical_visite_date,
+      works_conditions_installation_date: this.state.works_conditions_installation_date,
+      works_conditions_access_restrictions: this.state.works_conditions_access_restrictions,
+      works_conditions_prevention_plan: this.state.works_conditions_prevention_plan
+    }
+
+    console.log(qualification);
+
+    axios.post('https://backend-eveci.herokuapp.com/qualifications/update/' + this.props.match.params.id, qualification)
+      .then(res => {
+        console.log(res.data);
+      })
+      .then(() =>{
+      axios.get('https://backend-eveci.herokuapp.com/qualifications/email/'+this.props.match.params.id)
+      .then(() => {
+        window.location = '/';
+      });
+      });
+  }
+
+  onCancel(e) {
+    e.preventDefault();
+    window.location = '/';
+  }
+
+  showModal(){
+    this.setState({
+      validationmodal:{
+        show : !this.state.validationmodal.show,
+        documents: this.state.validationmodal.documents,
+        sendemail: this.state.validationmodal.sendemail
+      }
+    });
   }
 
   render() {
     return (
       <div className="container">
+        <QualValidationMod
+        onShowHide = {this.showModal}
+        showProp = {this.state.validationmodal.show}
+        documents = {this.state.validationmodal.documents}
+        sendemail = {this.state.validationmodal.sendemail}
+        onChange = {this.onChangeCheck}
+        onValidate = {this.onValidateModal}
+         />
         <div className="card"><div className="card-body">
             <h3 className="third-color-engie">Qualification d'infrastructure de recharge</h3>
             <div className="row form-group justify-content-start">
@@ -306,7 +444,7 @@ export default class EditQualification extends Component {
             <div className="row form-group justify-content-start">
               <label className="col-xl-4 col-form-label">Usage</label>
               <div className="col-xl-4">
-              <select class="form-control" id='usage' value={this.state.usage} onChange={this.onChange}>
+              <select className="form-control" id='usage' value={this.state.usage} onChange={this.onChange}>
                 <option value="1">Bornes pour flotte d'entreprise sur parking privé</option>
                 <option value="2">Partagé en résidentiel collectif</option>
                 <option value="3">Individuel en résidentiel collectif</option>
@@ -325,7 +463,7 @@ export default class EditQualification extends Component {
             <div className="row form-group justify-content-start">
               <label className="col-xl-4 col-form-label">Segment ENEDIS</label>
               <div className="col-xl-4">
-                <select class="form-control" id="s_enedis" value={this.state.s_enedis} onChange={this.onChange}>
+                <select className="form-control" id="s_enedis" value={this.state.s_enedis} onChange={this.onChange}>
                   <option value="1">C1</option>
                   <option value="2">C2</option>
                   <option value="3">C3</option>
@@ -404,9 +542,10 @@ export default class EditQualification extends Component {
               iderrorMessage = {this.state.formErrors.works_conditions_installation_date}
               />
             <br/>
-            <div class="btn-group float-right form-group">
-              <button type="submit" onClick={this.onSubmit} className="btn btn-primary">Valider la qualification</button>
-              <button type="reset" className="btn btn-outline-secondary">Recommencer</button>
+            <div className="btn-group float-right form-group">
+            <button type="submit" onClick={this.onValidate} className="btn btn-primary">Valider la qualification</button>
+            <button type="reset"  onClick={this.onSubmit} className="btn btn-outline-secondary">Enregistrer</button>
+              <button type="reset" onClick={this.onCancel} className="btn btn-outline-secondary">Annuler</button>
             </div>
           </div></div>
           <br/>

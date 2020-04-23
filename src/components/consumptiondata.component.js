@@ -103,11 +103,6 @@ export const options_consumptiondata = {
 
 export default class ConsumptionData extends Component {
 
-  constructor(props) {
-    super(props);
-
-  }
-
   continue = e => {
     e.preventDefault();
     this.props.nextStep();
