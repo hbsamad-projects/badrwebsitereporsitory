@@ -5,10 +5,26 @@ import "react-datepicker/dist/react-datepicker.css";
 import './myStyle.css';
 import {estSiretValide, formValid, isValidDate} from '../tools/validation';
 import moment from "moment";
+import uniqid from '../tools/uniqid';
+
+import cdcenoapf from "../advenir/CAHIER-DES-CHARGES-ENTREPRISES-NON-OUVERT-AU-PUBLIC-FLOTTE.PDF";
+import cdcperc from "../advenir/CAHIER-DES-CHARGES-PARTAGE-EN-RESIDENTIEL-COLLECTIF.PDF";
+import cdcp from "../advenir/CAHIER-DES-CHARGES-PARTICULIER.PDF";
+import cdcv from "../advenir/CAHIER-DES-CHARGES-VOIRIES.PDF";
+import eeppaap from "../advenir/ENTREPRISES-ET-PERSONNES-PUBLIQUES-ACCESSIBLES-AU-PUBLIC.PDF";
+
 
 const emailRegex = RegExp(
   /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
 );
+
+export const advenir = {
+  "1":cdcenoapf,
+  "2":cdcperc,
+  "3":cdcp,
+  "4":cdcv,
+  "5":eeppaap
+}
 
 export class AddressItem extends Component {
   render() {
@@ -121,7 +137,7 @@ export class Conditions extends Component {
         </div>
       </div>
       <AddressItem id="works_conditions_access_restrictions" label="Restrictions d'accès" errorMessage="" value={this.props.works_conditions_access_restrictions} placeholder="" readonly="true" onChange={this.props.onChange} />
-      <AddressItem id="works_conditions_prevention_plan" label="Plan de prévention pour les travaux" errorMessage="" value={this.props.works_conditions_prevention_plan} placeholder="" readonly="true" onChange={this.props.onChange} />
+      <AddressItem id="works_conditions_prevention_plan" label="Contraintes de réalisation vis-à-vis de l’hygiène/santé/sécurité du site" errorMessage="" value={this.props.works_conditions_prevention_plan} placeholder="" readonly="true" onChange={this.props.onChange} />
       </div></div>
     );
   }
@@ -245,15 +261,18 @@ export default class CreateQualification extends Component {
 
     this.state = {
 
+      uniqid: uniqid(),
+      stage: 'Qualification en cours',
+
       siret: '',
       corporatename: '',
       sitename: '',
       street: '',
       city: '',
-      code: 75000,
+      code: '',
       country: '',
 
-      usage: 2,
+      usage: 1,
       pdl: '',
       s_enedis: 4,
       project_ad_inf: '',
@@ -358,6 +377,9 @@ export default class CreateQualification extends Component {
     }
 
     const qualification = {
+      uniqid: this.state.uniqid,
+      stage: this.state.stage,
+
       siret: this.state.siret,
       corporatename: this.state.corporatename,
       sitename: this.state.sitename,
@@ -426,6 +448,14 @@ export default class CreateQualification extends Component {
       <div className="container">
         <div className="card"><div className="card-body">
             <h3 className="third-color-engie">Qualification d'infrastructure de recharge</h3>
+            <div className="row form-group justify-content-start">
+              <label className="col-sm-4 col-form-label"><b>Identifiant</b></label>
+              <label className="col-sm-4">{this.state.uniqid}</label>
+            </div>
+            <div className="row form-group justify-content-start">
+              <label className="col-sm-4 col-form-label"><b>Etape</b></label>
+              <label className="col-sm-4">{this.state.stage}</label>
+            </div>
             <h4 className="primary-color-engie">1. Identification du projet</h4>
             <AddressItem label="SIRET" id="siret" value={this.state.siret} errorMessage={this.state.formErrors.siret} placeholder="" readonly="true" onChange={this.onChange}/>
             <AddressItem label="Entreprise" id="corporatename" value={this.state.corporatename} errorMessage="" placeholder="" readonly="true" onChange={this.onChange}/>
@@ -440,12 +470,19 @@ export default class CreateQualification extends Component {
             <div className="row form-group justify-content-start">
               <label className="col-xl-4 col-form-label">Usage</label>
               <div className="col-xl-4">
-                <select class="form-control" value={this.state.usage} onChange={this.onChange}>
-                  <option value="1">Flotte à usage professionnel et personnel</option>
-                  <option value="2">Parking en copropriété</option>
-                  <option value="3">Parking en maison individuelle</option>
-                  <option value="4">Parking public</option>
+                <select class="form-control" id='usage' value={this.state.usage} onChange={this.onChange}>
+                  <option value="1">Bornes pour flotte d'entreprise sur parking privé</option>
+                  <option value="2">Partagé en résidentiel collectif</option>
+                  <option value="3">Individuel en résidentiel collectif</option>
+                  <option value="4">Bornes accessibles au public sur voiries</option>
+                  <option value="5">Bornes accessibles au public sur parking privé</option>
                 </select>
+              </div>
+            </div>
+            <div className="row form-group justify-content-start">
+              <label className="col-xl-4 col-form-label"></label>
+              <div className="col-xl-4">
+                <a href={advenir[this.state.usage]} target="_blank">Télécharger les conditions pour les aides Advenir</a>
               </div>
             </div>
             <AddressItem id="pdl" label="Numéro de PDL" value={this.state.pdl} errorMessage="" onChange={this.onChange} placeholder="" readonly="true" />
@@ -485,6 +522,14 @@ export default class CreateQualification extends Component {
             </div></div>
             <br/>
             <h4 className="primary-color-engie">2. Dimensionnement du parc de recharge</h4>
+            <NeedsToBeDefined
+              charging_time = {this.state.other_needs_charging_time}
+              access_days = {this.state.other_needs_allowed_access_days}
+              other_needs_nb_vehicules={this.state.other_needs_nb_vehicules}
+              other_needs_nb_charges= {this.state.other_needs_nb_charges}
+              onChange={this.onChange}
+              />
+            <br/>
             <EstablishedNeeds
               nb_s_7kw_c = {this.state.charger_needs_nb_s_7kw_c}
               nb_d_7kw_c = {this.state.charger_needs_nb_d_7kw_c}
@@ -493,14 +538,6 @@ export default class CreateQualification extends Component {
               nb_sh_7kw_c = {this.state.charger_needs_nb_sh_7kw_c}
               other_data = {this.state.charger_needs_other_data}
               onChange={this.onChange}/>
-            <br/>
-            <NeedsToBeDefined
-              charging_time = {this.state.other_needs_charging_time}
-              access_days = {this.state.other_needs_allowed_access_days}
-              other_needs_nb_vehicules={this.state.other_needs_nb_vehicules}
-              other_needs_nb_charges= {this.state.other_needs_nb_vehicules}
-              onChange={this.onChange}
-              />
             <br/>
             <OtherInformation
               installation_type = {this.state.other_information_installation_type}
